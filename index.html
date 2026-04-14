@@ -3,43 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auto Dashboard Google Sheets</title>
+<title>Pro Dashboard Google Sheets</title>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
 body {
-    font-family: Arial;
     margin: 0;
+    font-family: Arial;
     background: #0f172a;
     color: white;
-}
-
-.header {
-    padding: 20px;
-    background: #020617;
-}
-
-.container {
-    padding: 20px;
-}
-
-/* Tabs otomatis */
-.tabs {
     display: flex;
-    flex-wrap: wrap;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #020617;
+    height: 100vh;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    color: #38bdf8;
+}
+
+.menu {
+    margin-top: 20px;
+}
+
+.menu button {
+    width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #1e293b;
+    color: white;
+    cursor: pointer;
+}
+
+.menu button.active {
+    background: #38bdf8;
+    color: black;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Cards */
+.cards {
+    display: flex;
     gap: 10px;
     margin-bottom: 15px;
 }
 
-.tab {
-    padding: 10px 15px;
-    background: #1e293b;
-    border-radius: 8px;
-    cursor: pointer;
+.card {
+    flex: 1;
+    background: #020617;
+    padding: 15px;
+    border-radius: 10px;
 }
 
-.tab.active {
-    background: #38bdf8;
-    color: black;
+/* Search */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: none;
 }
 
 /* Table */
@@ -47,110 +82,176 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: #020617;
-    border-radius: 10px;
-    overflow: hidden;
 }
 
 th, td {
     padding: 10px;
     border-bottom: 1px solid #1e293b;
-    text-align: left;
 }
 
 th {
     background: #111827;
 }
 
-.loading {
-    padding: 20px;
+/* Pagination */
+.pagination {
+    margin-top: 10px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #1e293b;
+    color: white;
+}
+
+.pagination button.active {
+    background: #38bdf8;
+    color: black;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h2>📊 Auto Dashboard Google Sheets</h2>
-    <p>Tanpa GID — data otomatis terbaca</p>
+<div class="sidebar">
+    <h2>📊 Pro Dashboard</h2>
+    <div class="menu" id="menu"></div>
 </div>
 
-<div class="container">
+<div class="main">
 
-<div class="tabs" id="tabs"></div>
+    <h1>Dashboard Data</h1>
 
-<div id="content" class="loading">Loading data...</div>
+    <div class="cards">
+        <div class="card">📦 Total Data: <span id="total">0</span></div>
+        <div class="card">⚡ Status: Live</div>
+    </div>
+
+    <input type="text" id="search" placeholder="🔍 Cari data..." onkeyup="filterData()">
+
+    <div id="table"></div>
 
 </div>
 
 <script>
-// 🔥 URL CSV publish Google Sheets kamu
-const baseUrl = "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/gviz/tq?tqx=out:json&sheet=";
 
-// 👉 Nama sheet (tidak pakai GID!)
-const sheets = [
-    "Sheet1",
-    "Sheet2",
-    "Sheet3"
-];
+// 🔥 Google Sheets CSV (WAJIB publish to web)
+const baseUrl = "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/gviz/tq?tqx=out:csv&sheet=";
 
-let active = 0;
+// Nama sheet (tanpa GID)
+const sheets = ["Sheet1", "Sheet2", "Sheet3"];
 
-// load tabs
-const tabs = document.getElementById("tabs");
+let data = [];
+let filtered = [];
+let currentPage = 1;
+const rowsPerPage = 10;
+let activeSheet = 0;
 
-sheets.forEach((name, i) => {
-    const btn = document.createElement("div");
-    btn.className = "tab";
-    btn.innerText = name;
+// MENU
+const menu = document.getElementById("menu");
 
+sheets.forEach((s, i) => {
+    let btn = document.createElement("button");
+    btn.innerText = s;
     btn.onclick = () => loadSheet(i);
-
-    tabs.appendChild(btn);
+    menu.appendChild(btn);
 });
 
+function setActive(index){
+    document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".menu button")[index].classList.add("active");
+}
+
+// LOAD SHEET
 function loadSheet(index){
-    active = index;
+    activeSheet = index;
+    setActive(index);
 
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab")[index].classList.add("active");
-
-    const url = baseUrl + sheets[index];
-
-    fetch(url)
+    fetch(baseUrl + sheets[index])
     .then(res => res.text())
-    .then(data => {
+    .then(csv => {
 
-        // bersihkan JSON Google
-        const json = JSON.parse(data.substring(47).slice(0,-2));
+        data = Papa.parse(csv, {header: true}).data;
+        filtered = data;
 
-        const rows = json.table.rows;
+        document.getElementById("total").innerText = data.length;
 
-        let html = "<table>";
-
-        rows.forEach((r, i) => {
-            html += "<tr>";
-
-            r.c.forEach(cell => {
-                html += i === 0
-                ? `<th>${cell ? cell.v : ""}</th>`
-                : `<td>${cell ? cell.v : ""}</td>`;
-            });
-
-            html += "</tr>";
-        });
-
-        html += "</table>";
-
-        document.getElementById("content").innerHTML = html;
-    })
-    .catch(err => {
-        document.getElementById("content").innerHTML = "Gagal load data ❌";
-        console.log(err);
+        renderTable();
     });
 }
 
-// auto load pertama
+// SEARCH
+function filterData(){
+    let q = document.getElementById("search").value.toLowerCase();
+
+    filtered = data.filter(row =>
+        Object.values(row).some(v =>
+            String(v).toLowerCase().includes(q)
+        )
+    );
+
+    currentPage = 1;
+    renderTable();
+}
+
+// TABLE
+function renderTable(){
+
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+
+    let pageData = filtered.slice(start, end);
+
+    let html = "<table><tr>";
+
+    if(pageData.length > 0){
+        Object.keys(pageData[0]).forEach(h => {
+            html += `<th>${h}</th>`;
+        });
+        html += "</tr>";
+    }
+
+    pageData.forEach(row => {
+        html += "<tr>";
+        Object.values(row).forEach(v => {
+            html += `<td>${v}</td>`;
+        });
+        html += "</tr>";
+    });
+
+    html += "</table>";
+
+    // pagination
+    html += "<div class='pagination'>";
+
+    let pages = Math.ceil(filtered.length / rowsPerPage);
+
+    for(let i=1;i<=pages;i++){
+        html += `<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+    }
+
+    html += "</div>";
+
+    document.getElementById("table").innerHTML = html;
+}
+
+function goPage(p){
+    currentPage = p;
+    renderTable();
+}
+
+// AUTO REFRESH (30 detik)
+setInterval(() => {
+    loadSheet(activeSheet);
+}, 30000);
+
+// init
 loadSheet(0);
+
 </script>
 
 </body>
