@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Dashboard Google Sheets</title>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<title>Dashboard Google Sheets</title>
 
 <style>
 body {
@@ -19,8 +17,8 @@ body {
 /* Sidebar */
 .sidebar {
     width: 240px;
-    background: #020617;
     height: 100vh;
+    background: #020617;
     padding: 20px;
 }
 
@@ -34,13 +32,19 @@ body {
 
 .menu button {
     width: 100%;
-    margin: 8px 0;
     padding: 10px;
+    margin: 8px 0;
     border: none;
     border-radius: 8px;
     background: #1e293b;
     color: white;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+.menu button:hover {
+    background: #38bdf8;
+    color: black;
 }
 
 .menu button.active {
@@ -54,63 +58,28 @@ body {
     padding: 20px;
 }
 
-/* Cards */
-.cards {
-    display: flex;
-    gap: 10px;
+/* Header */
+.header {
     margin-bottom: 15px;
 }
 
+.header h1 {
+    margin: 0;
+}
+
+/* Card */
 .card {
-    flex: 1;
     background: #020617;
-    padding: 15px;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+/* Iframe */
+iframe {
+    width: 100%;
+    height: 80vh;
+    border: none;
     border-radius: 10px;
-}
-
-/* Search */
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: none;
-}
-
-/* Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #020617;
-}
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #1e293b;
-}
-
-th {
-    background: #111827;
-}
-
-/* Pagination */
-.pagination {
-    margin-top: 10px;
-}
-
-.pagination button {
-    padding: 8px 12px;
-    margin: 2px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #1e293b;
-    color: white;
-}
-
-.pagination button.active {
-    background: #38bdf8;
-    color: black;
 }
 </style>
 </head>
@@ -118,138 +87,46 @@ th {
 <body>
 
 <div class="sidebar">
-    <h2>📊 Pro Dashboard</h2>
-    <div class="menu" id="menu"></div>
+    <h2>📊 Dashboard</h2>
+    <p>Google Sheets Viewer</p>
+
+    <div class="menu">
+        <button class="active" onclick="loadSheet(0)">Sheet 1</button>
+        <button onclick="loadSheet(1)">Sheet 2</button>
+        <button onclick="loadSheet(2)">Sheet 3</button>
+    </div>
 </div>
 
 <div class="main">
 
-    <h1>Dashboard Data</h1>
-
-    <div class="cards">
-        <div class="card">📦 Total Data: <span id="total">0</span></div>
-        <div class="card">⚡ Status: Live</div>
+    <div class="header">
+        <h1>Dashboard Data</h1>
+        <p>Realtime dari Google Sheets</p>
     </div>
 
-    <input type="text" id="search" placeholder="🔍 Cari data..." onkeyup="filterData()">
-
-    <div id="table"></div>
+    <div class="card">
+        <iframe id="frame"></iframe>
+    </div>
 
 </div>
 
 <script>
 
-// 🔥 Google Sheets CSV (WAJIB publish to web)
-const baseUrl = "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/gviz/tq?tqx=out:csv&sheet=";
+// 🔥 GANTI GID DI SINI
+const sheets = [
+    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=0&single=true",
+    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=123456789&single=true",
+    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=987654321&single=true"
+];
 
-// Nama sheet (tanpa GID)
-const sheets = ["Sheet1", "Sheet2", "Sheet3"];
+function loadSheet(i){
+    document.getElementById("frame").src = sheets[i];
 
-let data = [];
-let filtered = [];
-let currentPage = 1;
-const rowsPerPage = 10;
-let activeSheet = 0;
-
-// MENU
-const menu = document.getElementById("menu");
-
-sheets.forEach((s, i) => {
-    let btn = document.createElement("button");
-    btn.innerText = s;
-    btn.onclick = () => loadSheet(i);
-    menu.appendChild(btn);
-});
-
-function setActive(index){
     document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".menu button")[index].classList.add("active");
+    document.querySelectorAll(".menu button")[i].classList.add("active");
 }
 
-// LOAD SHEET
-function loadSheet(index){
-    activeSheet = index;
-    setActive(index);
-
-    fetch(baseUrl + sheets[index])
-    .then(res => res.text())
-    .then(csv => {
-
-        data = Papa.parse(csv, {header: true}).data;
-        filtered = data;
-
-        document.getElementById("total").innerText = data.length;
-
-        renderTable();
-    });
-}
-
-// SEARCH
-function filterData(){
-    let q = document.getElementById("search").value.toLowerCase();
-
-    filtered = data.filter(row =>
-        Object.values(row).some(v =>
-            String(v).toLowerCase().includes(q)
-        )
-    );
-
-    currentPage = 1;
-    renderTable();
-}
-
-// TABLE
-function renderTable(){
-
-    let start = (currentPage - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-
-    let pageData = filtered.slice(start, end);
-
-    let html = "<table><tr>";
-
-    if(pageData.length > 0){
-        Object.keys(pageData[0]).forEach(h => {
-            html += `<th>${h}</th>`;
-        });
-        html += "</tr>";
-    }
-
-    pageData.forEach(row => {
-        html += "<tr>";
-        Object.values(row).forEach(v => {
-            html += `<td>${v}</td>`;
-        });
-        html += "</tr>";
-    });
-
-    html += "</table>";
-
-    // pagination
-    html += "<div class='pagination'>";
-
-    let pages = Math.ceil(filtered.length / rowsPerPage);
-
-    for(let i=1;i<=pages;i++){
-        html += `<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
-    }
-
-    html += "</div>";
-
-    document.getElementById("table").innerHTML = html;
-}
-
-function goPage(p){
-    currentPage = p;
-    renderTable();
-}
-
-// AUTO REFRESH (30 detik)
-setInterval(() => {
-    loadSheet(activeSheet);
-}, 30000);
-
-// init
+// default load
 loadSheet(0);
 
 </script>
