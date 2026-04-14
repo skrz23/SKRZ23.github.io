@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Dashboard Google Sheets</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #0f172a;
+    color: white;
+}
+
+.header {
+    padding: 20px;
+    background: #020617;
+}
+
+.container {
+    padding: 20px;
+}
+
+/* Tabs otomatis */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    padding: 10px 15px;
+    background: #1e293b;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tab.active {
+    background: #38bdf8;
+    color: black;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #020617;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #1e293b;
+    text-align: left;
+}
+
+th {
+    background: #111827;
+}
+
+.loading {
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>📊 Auto Dashboard Google Sheets</h2>
+    <p>Tanpa GID — data otomatis terbaca</p>
+</div>
+
+<div class="container">
+
+<div class="tabs" id="tabs"></div>
+
+<div id="content" class="loading">Loading data...</div>
+
+</div>
+
+<script>
+// 🔥 URL CSV publish Google Sheets kamu
+const baseUrl = "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/gviz/tq?tqx=out:json&sheet=";
+
+// 👉 Nama sheet (tidak pakai GID!)
+const sheets = [
+    "Sheet1",
+    "Sheet2",
+    "Sheet3"
+];
+
+let active = 0;
+
+// load tabs
+const tabs = document.getElementById("tabs");
+
+sheets.forEach((name, i) => {
+    const btn = document.createElement("div");
+    btn.className = "tab";
+    btn.innerText = name;
+
+    btn.onclick = () => loadSheet(i);
+
+    tabs.appendChild(btn);
+});
+
+function loadSheet(index){
+    active = index;
+
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab")[index].classList.add("active");
+
+    const url = baseUrl + sheets[index];
+
+    fetch(url)
+    .then(res => res.text())
+    .then(data => {
+
+        // bersihkan JSON Google
+        const json = JSON.parse(data.substring(47).slice(0,-2));
+
+        const rows = json.table.rows;
+
+        let html = "<table>";
+
+        rows.forEach((r, i) => {
+            html += "<tr>";
+
+            r.c.forEach(cell => {
+                html += i === 0
+                ? `<th>${cell ? cell.v : ""}</th>`
+                : `<td>${cell ? cell.v : ""}</td>`;
+            });
+
+            html += "</tr>";
+        });
+
+        html += "</table>";
+
+        document.getElementById("content").innerHTML = html;
+    })
+    .catch(err => {
+        document.getElementById("content").innerHTML = "Gagal load data ❌";
+        console.log(err);
+    });
+}
+
+// auto load pertama
+loadSheet(0);
+</script>
+
+</body>
+</html>
