@@ -100,7 +100,7 @@
     </div>
 
     <div class="card">
-        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false"></iframe>
+        https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml
     </div>
 </div>
 
