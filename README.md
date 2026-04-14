@@ -4,83 +4,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Multi Sheet</title>
+<title>Dashboard Data</title>
 
 <style>
-body {
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
-    margin: 0;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
-.header {
-    padding: 20px;
-}
+    body {
+        display: flex;
+        background-color: #0f172a;
+        color: white;
+    }
 
-.tabs {
-    display: flex;
-    gap: 10px;
-    padding: 0 20px;
-}
+    /* Sidebar */
+    .sidebar {
+        width: 220px;
+        height: 100vh;
+        background: #020617;
+        padding: 20px;
+    }
 
-.tab {
-    padding: 10px 20px;
-    background: #1e293b;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
+    .sidebar h2 {
+        margin-bottom: 30px;
+        color: #38bdf8;
+    }
 
-.tab:hover {
-    background: #38bdf8;
-}
+    .sidebar a {
+        display: block;
+        margin: 15px 0;
+        color: #94a3b8;
+        text-decoration: none;
+        transition: 0.3s;
+    }
 
-.tab.active {
-    background: #38bdf8;
-    color: black;
-}
+    .sidebar a:hover {
+        color: #38bdf8;
+    }
 
-iframe {
-    width: 100%;
-    height: 85vh;
-    border: none;
-    margin-top: 10px;
-}
+    /* Main */
+    .main {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    /* Card */
+    .card {
+        background: #020617;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    /* Iframe */
+    iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            display: none;
+        }
+    }
 </style>
-
 </head>
+
 <body>
 
-<div class="header">
-    <h1>📊 Dashboard Data</h1>
+<div class="sidebar">
+    <h2>📊 Dashboard</h2>
+    <a href="#">Home</a>
+    <a href="#">Data</a>
+    <a href="#">Laporan</a>
 </div>
 
-<div class="tabs">
-    <div class="tab active" onclick="gantiSheet(0)">Sheet 1</div>
-    <div class="tab" onclick="gantiSheet(1)">Sheet 2</div>
-    <div class="tab" onclick="gantiSheet(2)">Sheet 3</div>
+<div class="main">
+    <div class="header">
+        <h1>Dashboard Google Sheets</h1>
+        <p>Data realtime dari spreadsheet</p>
+    </div>
+
+    <div class="card">
+        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false"></iframe>
+    </div>
 </div>
-
-<iframe id="frame" src=""></iframe>
-
-<script>
-const sheets = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?gid=0&single=true",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?gid=123456&single=true",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?gid=789012&single=true"
-];
-
-function gantiSheet(index) {
-    document.getElementById("frame").src = sheets[index];
-
-    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
-    document.querySelectorAll(".tab")[index].classList.add("active");
-}
-
-// Load pertama
-gantiSheet(0);
-</script>
 
 </body>
 </html>
