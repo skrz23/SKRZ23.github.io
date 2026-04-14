@@ -26,30 +26,9 @@ body {
     color: #38bdf8;
 }
 
-.menu {
-    margin-top: 20px;
-}
-
-.menu button {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 8px;
-    background: #1e293b;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.menu button:hover {
-    background: #38bdf8;
-    color: black;
-}
-
-.menu button.active {
-    background: #38bdf8;
-    color: black;
+.sidebar p {
+    color: #94a3b8;
+    font-size: 13px;
 }
 
 /* Main */
@@ -59,25 +38,23 @@ body {
 }
 
 /* Header */
-.header {
-    margin-bottom: 15px;
-}
-
 .header h1 {
     margin: 0;
 }
 
 /* Card */
 .card {
+    margin-top: 15px;
     background: #020617;
     padding: 10px;
     border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
 /* Iframe */
 iframe {
     width: 100%;
-    height: 80vh;
+    height: 85vh;
     border: none;
     border-radius: 10px;
 }
@@ -89,12 +66,10 @@ iframe {
 <div class="sidebar">
     <h2>📊 Dashboard</h2>
     <p>Google Sheets Viewer</p>
-
-    <div class="menu">
-        <button class="active" onclick="loadSheet(0)">Sheet 1</button>
-        <button onclick="loadSheet(1)">Sheet 2</button>
-        <button onclick="loadSheet(2)">Sheet 3</button>
-    </div>
+    <hr style="border-color:#1e293b;">
+    <p>✔ Live Data</p>
+    <p>✔ Auto Update</p>
+    <p>✔ No GID Needed</p>
 </div>
 
 <div class="main">
@@ -105,31 +80,13 @@ iframe {
     </div>
 
     <div class="card">
-        <iframe id="frame"></iframe>
+
+        <!-- 🔥 IFRAME KAMU -->
+        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false"></iframe>
+
     </div>
 
 </div>
-
-<script>
-
-// 🔥 GANTI GID DI SINI
-const sheets = [
-    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=0&single=true",
-    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=123456789&single=true",
-    "https://docs.google.com/spreadsheets/d/1C4UkMOVITHvJw1LyHNPz5PA6JtUSxPDVPOljtyZl0mw/pubhtml?gid=987654321&single=true"
-];
-
-function loadSheet(i){
-    document.getElementById("frame").src = sheets[i];
-
-    document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".menu button")[i].classList.add("active");
-}
-
-// default load
-loadSheet(0);
-
-</script>
 
 </body>
 </html>
