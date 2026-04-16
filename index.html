@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Google Sheets</title>
+<title>Dashboard Advanced</title>
 
 <style>
 body {
@@ -20,37 +20,41 @@ body {
     align-items: center;
     background: #020617;
     padding: 15px 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     position: sticky;
     top: 0;
 }
 
-.navbar .title {
+.title {
     color: #38bdf8;
-    font-size: 20px;
     font-weight: bold;
 }
 
-.navbar .menu {
-    display: flex;
-    gap: 20px;
-}
-
-.navbar .menu span {
-    font-size: 14px;
-    color: #94a3b8;
+.menu span {
+    margin: 0 10px;
     cursor: pointer;
-    transition: 0.3s;
+    color: #94a3b8;
 }
 
-.navbar .menu span:hover {
-    color: #38bdf8;
-}
-
-/* ACTIVE MENU */
+.menu span:hover,
 .active {
-    color: #38bdf8 !important;
+    color: #38bdf8;
     font-weight: bold;
+}
+
+/* CONTROL PANEL */
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+button, select {
+    background: #1e293b;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 /* MAIN */
@@ -59,63 +63,131 @@ body {
 }
 
 .card {
-    margin-top: 15px;
     background: #020617;
     padding: 10px;
     border-radius: 12px;
+    position: relative;
 }
 
 /* IFRAME */
 iframe {
     width: 100%;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 160px);
     border: none;
     border-radius: 10px;
+}
+
+/* LOADING SPINNER */
+.loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 6px solid #1e293b;
+    border-top: 6px solid #38bdf8;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.status {
+    font-size: 12px;
+    color: #94a3b8;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
-    <div class="title">📊 Dashboard</div>
+    <div class="title">📊 Dashboard Advanced</div>
+
     <div class="menu">
-        <span onclick="loadFrame(this, 'live')">✔ DESK GAJI 2026</span>
-        <span onclick="loadFrame(this, 'auto')">✔ DESK GAJI 2027</span>
-        <span onclick="loadFrame(this, 'nogid')">✔ DESK PARUH WAKTU</span>
+        <span onclick="loadFrame(this,'live')">DESK GAJI 2026</span>
+        <span onclick="loadFrame(this,'auto')">DESK GAJI 2027</span>
+        <span onclick="loadFrame(this,'nogid')">DESK PARUH WAKTU</span>
+    </div>
+
+    <div class="controls">
+        <button onclick="toggleRefresh()" id="btnToggle">⏸ Stop</button>
+        <select onchange="changeInterval(this.value)">
+            <option value="3000">3s</option>
+            <option value="5000" selected>5s</option>
+            <option value="10000">10s</option>
+        </select>
+        <span class="status" id="status">Auto: ON</span>
     </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
     <div class="card">
-        <iframe id="frame"
-        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false">
-        </iframe>
+        <div class="loader" id="loader"></div>
+        <iframe id="frame"></iframe>
     </div>
 </div>
 
 <script>
+let currentURL = "";
+let intervalTime = 5000;
+let refreshInterval;
+let isRunning = true;
+
+const urls = {
+    live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
+    auto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false",
+    nogid: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false"
+};
+
 function loadFrame(el, type) {
-    const frame = document.getElementById("frame");
+    currentURL = urls[type];
+    document.getElementById("frame").src = currentURL;
 
-    // Ganti URL sesuai menu
-    if (type === "live") {
-        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false";
-    } else if (type === "auto") {
-        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false";
-    } else if (type === "nogid") {
-        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false";
-    }
-
-    // Highlight menu aktif
-    document.querySelectorAll(".menu span").forEach(item => item.classList.remove("active"));
+    document.querySelectorAll(".menu span").forEach(x => x.classList.remove("active"));
     el.classList.add("active");
+
+    startRefresh();
 }
 
-// Set default aktif
-document.querySelectorAll(".menu span")[0].classList.add("active");
+function refreshFrame() {
+    if (!isRunning) return;
+
+    const frame = document.getElementById("frame");
+    const loader = document.getElementById("loader");
+
+    loader.style.display = "block";
+
+    frame.src = currentURL + "&t=" + new Date().getTime();
+
+    setTimeout(() => loader.style.display = "none", 800);
+}
+
+function startRefresh() {
+    clearInterval(refreshInterval);
+    refreshInterval = setInterval(refreshFrame, intervalTime);
+}
+
+function toggleRefresh() {
+    isRunning = !isRunning;
+
+    document.getElementById("status").innerText = "Auto: " + (isRunning ? "ON" : "OFF");
+    document.getElementById("btnToggle").innerText = isRunning ? "⏸ Stop" : "▶ Start";
+}
+
+function changeInterval(val) {
+    intervalTime = val;
+    startRefresh();
+}
+
+// default load
+window.onload = () => {
+    loadFrame(document.querySelectorAll(".menu span")[0], "live");
+};
 </script>
 
 </body>
