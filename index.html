@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Premium</title>
+<title>Dashboard Ultimate</title>
 
 <style>
 :root { --primary:#38bdf8; }
@@ -17,102 +17,64 @@ body{
 
 /* PROGRESS */
 .progress{
-    position:fixed;
-    top:0;
-    left:0;
-    height:3px;
-    width:0%;
-    background:var(--primary);
-    z-index:9999;
+    position:fixed;top:0;left:0;height:3px;width:0%;
+    background:var(--primary);z-index:9999;
 }
 
 /* NAVBAR */
 .navbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px 15px;
-    background:rgba(2,6,23,0.7);
+    display:flex;justify-content:space-between;align-items:center;
+    padding:15px 20px;background:rgba(2,6,23,0.7);
     backdrop-filter:blur(10px);
 }
 
 .title{color:var(--primary);font-weight:bold;}
 
-.menu{display:flex;gap:20px;align-items:center;}
+.menu{display:flex;gap:15px;align-items:center;}
 .menu span{cursor:pointer;color:#94a3b8;}
 .menu span:hover,.active{color:var(--primary);}
 
 .btn{
-    background:var(--primary);
-    border:none;
-    padding:6px 12px;
-    border-radius:6px;
-    cursor:pointer;
+    background:var(--primary);border:none;
+    padding:6px 10px;border-radius:6px;cursor:pointer;
 }
 
 /* MOBILE */
 .hamburger{display:none;font-size:22px;cursor:pointer;}
 
-/* ✅ SIDEBAR FIX */
 .sidebar{
-    position:fixed;
-    top:0;
-    left:0;
-    width:260px;
-    height:100%;
-    background:#020617;
-    padding:20px;
+    position:fixed;top:0;left:0;width:260px;height:100%;
+    background:#020617;padding:20px;
     transform:translateX(-100%);
-    transition:0.3s;
-    z-index:1000;
+    transition:0.3s;z-index:1000;
 }
 .sidebar.active{transform:translateX(0);}
 .sidebar span{display:block;padding:12px 0;cursor:pointer;}
 
-/* OVERLAY */
 .overlay-menu{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.5);
-    display:none;
-    z-index:999;
+    position:fixed;inset:0;background:rgba(0,0,0,0.5);
+    display:none;z-index:999;
 }
 .overlay-menu.active{display:block;}
 
 /* MAIN */
 .main{padding:15px;}
-
-.status{
-    font-size:13px;
-    color:#94a3b8;
-    text-align:right;
-    margin-bottom:8px;
-}
+.status{font-size:13px;color:#94a3b8;text-align:right;margin-bottom:8px;}
 
 /* ZOOM */
 .zoom-control{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:10px;
-    color:#94a3b8;
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;color:#94a3b8;
 }
 
 /* CARD */
 .card{
     background:rgba(2,6,23,0.7);
-    border-radius:12px;
-    padding:10px;
-    position:relative;
-    z-index:1;
+    border-radius:12px;padding:10px;
 }
 
-/* ✅ IFRAME FIX TOTAL */
+/* IFRAME */
 .iframe-wrapper{
-    width:100%;
-    overflow:auto;
-    position:relative;
-    z-index:1;
+    width:100%;overflow:auto;
 }
 
 .iframe-wrapper iframe{
@@ -124,27 +86,23 @@ body{
 
 /* LOADING */
 .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(2,6,23,0.6);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    opacity:0;
-    pointer-events:none;
-    transition:0.3s;
+    position:fixed;inset:0;background:rgba(2,6,23,0.6);
+    display:flex;justify-content:center;align-items:center;
+    opacity:0;pointer-events:none;transition:0.3s;
 }
 .overlay.active{opacity:1;pointer-events:all;}
 
 .loader{
-    width:40px;
-    height:40px;
-    border:4px solid var(--primary);
-    border-top:transparent;
-    border-radius:50%;
+    width:40px;height:40px;border:4px solid var(--primary);
+    border-top:transparent;border-radius:50%;
     animation:spin 1s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg);}}
+
+/* FULLSCREEN */
+body.fullscreen .navbar{display:none;}
+body.fullscreen .main{padding:5px;}
+body.fullscreen iframe{height:100vh !important;}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -170,6 +128,7 @@ body{
 
         <button class="btn" onclick="refreshFrame()">🔄</button>
         <button class="btn" onclick="printFrame()">🖨</button>
+        <button class="btn" onclick="toggleFullscreen()">⛶</button>
     </div>
 </div>
 
@@ -181,11 +140,13 @@ body{
     <span onclick="openDrive()">SELENGKAPNYA</span>
     <span onclick="refreshFrame()">🔄 Refresh</span>
     <span onclick="printFrame()">🖨 Print</span>
+    <span onclick="toggleFullscreen()">⛶ Fullscreen</span>
 </div>
 
 <div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
 
 <div class="main">
+
     <div class="status" id="status">Terakhir diperbarui: -</div>
 
     <div class="zoom-control">
@@ -217,6 +178,7 @@ function loadFrame(el,type){
  currentURL=urls[type];
  startLoading();
  frame.src=currentURL;
+
  if(el){
   document.querySelectorAll(".menu span").forEach(e=>e.classList.remove("active"));
   el.classList.add("active");
@@ -234,22 +196,25 @@ function refreshFrame(){
  frame.src=currentURL+"&t="+Date.now();
 }
 
-/* PRINT STABIL */
+/* PRINT */
 function printFrame(){
  if(!currentURL)return;
  const win=window.open(currentURL,"_blank");
  setTimeout(()=>win.print(),1200);
 }
 
+/* DRIVE */
 function openDrive(){
  window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs","_blank");
 }
 
+/* SIDEBAR */
 function toggleMenu(){
  sidebar.classList.toggle("active");
  overlayMenu.classList.toggle("active");
 }
 
+/* LOADING */
 function startLoading(){
  overlay.classList.add("active");
  progress.style.width="70%";
@@ -267,16 +232,52 @@ function updateTime(){
  status.innerText="Terakhir diperbarui: "+new Date().toLocaleTimeString("id-ID");
 }
 
-/* ZOOM */
+/* ZOOM MANUAL */
 zoomSlider.oninput=function(){
  const scale=this.value/100;
  frame.style.transform="scale("+scale+")";
  zoomValue.innerText=this.value+"%";
 };
 
+/* AUTO ZOOM */
+function autoZoom(){
+ const wrapper=document.querySelector(".iframe-wrapper");
+ let scale=wrapper.clientWidth/1200;
+
+ if(scale>1) scale=1;
+ if(scale<0.5) scale=0.5;
+
+ frame.style.transform="scale("+scale+")";
+
+ let percent=Math.round(scale*100);
+ zoomSlider.value=percent;
+ zoomValue.innerText=percent+"%";
+}
+
+/* FULLSCREEN */
+function toggleFullscreen(){
+ if(!document.fullscreenElement){
+  document.documentElement.requestFullscreen();
+  document.body.classList.add("fullscreen");
+ }else{
+  document.exitFullscreen();
+  document.body.classList.remove("fullscreen");
+ }
+}
+
+document.addEventListener("fullscreenchange",()=>{
+ if(!document.fullscreenElement){
+  document.body.classList.remove("fullscreen");
+ }
+});
+
+/* EVENTS */
+window.addEventListener("resize",autoZoom);
+
 frame.onload=()=>{
  stopLoading();
  updateTime();
+ autoZoom();
 };
 
 window.onload=()=>{
