@@ -3,14 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Google Sheets</title>
+<title>Dashboard Premium</title>
 
 <style>
+:root {
+    --primary: #38bdf8;
+}
+
+/* BASE */
 body {
     margin: 0;
-    font-family: Arial;
-    background: #0f172a;
+    font-family: 'Segoe UI', Arial;
+    background: linear-gradient(135deg, #020617, #0f172a);
     color: white;
+}
+
+/* PROGRESS BAR */
+.progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--primary);
+    z-index: 9999;
 }
 
 /* NAVBAR */
@@ -18,18 +34,17 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #020617;
-    padding: 15px 25px;
-    position: sticky;
-    top: 0;
+    padding: 15px 20px;
+    background: rgba(2,6,23,0.7);
+    backdrop-filter: blur(10px);
 }
 
-.navbar .title {
-    color: #38bdf8;
-    font-size: 20px;
+.title {
+    color: var(--primary);
     font-weight: bold;
 }
 
+/* MENU */
 .menu {
     display: flex;
     gap: 20px;
@@ -43,109 +58,245 @@ body {
 
 .menu span:hover,
 .active {
-    color: #38bdf8;
-    font-weight: bold;
+    color: var(--primary);
 }
 
-/* BUTTON REFRESH */
-.refresh-btn {
-    cursor: pointer;
-    background: #38bdf8;
+/* BUTTON */
+.btn {
+    background: var(--primary);
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
-    color: #020617;
-    font-weight: bold;
+    cursor: pointer;
 }
 
-.refresh-btn:hover {
-    background: #0ea5e9;
+/* MOBILE */
+.hamburger {
+    display: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background: #020617;
+    padding: 20px;
+    transition: 0.3s;
+    z-index: 1000;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar span {
+    display: block;
+    padding: 12px 0;
+    cursor: pointer;
+}
+
+.overlay-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+}
+
+.overlay-menu.active {
+    display: block;
 }
 
 /* MAIN */
 .main {
-    padding: 20px;
+    padding: 15px;
 }
 
+.status {
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: right;
+    margin-bottom: 8px;
+}
+
+/* CARD */
 .card {
-    margin-top: 15px;
-    background: #020617;
-    padding: 10px;
+    background: rgba(2,6,23,0.7);
     border-radius: 12px;
+    padding: 8px;
 }
 
 /* IFRAME */
 iframe {
     width: 100%;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 150px);
     border: none;
     border-radius: 10px;
+}
+
+/* LOADING */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,6,23,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--primary);
+    border-top: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .menu { display:none; }
+    .hamburger { display:block; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="navbar">
-    <div class="title">📊 Dashboard</div>
-    <div class="menu">
-        <span onclick="loadFrame(this, 'live')">✔ DESK GAJI 2026</span> 
-        <span onclick="loadFrame(this, 'auto')">✔ DESK GAJI 2027</span> 
-        <span onclick="loadFrame(this, 'nogid')">✔ DESK PARUH WAKTU</span> 
-        
-        <!-- MENU BARU -->
-        <span onclick="openDrive()">📁 SELENGKAPNYA</span>
+<div class="progress" id="progress"></div>
 
-        <!-- Tombol Refresh -->
-        <button class="refresh-btn" onclick="refreshFrame()">🔄 Refresh</button>
+<div class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="title">📊 Dashboard</div>
+
+    <div class="menu">
+        <span onclick="loadFrame(this,'live')">2026</span>
+        <span onclick="loadFrame(this,'auto')">2027</span>
+        <span onclick="loadFrame(this,'nogid')">Paruh</span>
+        <span onclick="openDrive()">Drive</span>
+
+        <button class="btn" onclick="refreshFrame()">🔄</button>
+        <button class="btn" onclick="printFrame()">🖨</button>
     </div>
 </div>
 
+<!-- MOBILE MENU -->
+<div class="sidebar" id="sidebar">
+    <span onclick="loadFrameMobile('live')">GAJI 2026</span>
+    <span onclick="loadFrameMobile('auto')">GAJI 2027</span>
+    <span onclick="loadFrameMobile('nogid')">PARUH WAKTU</span>
+    <span onclick="openDrive()">SELENGKAPNYA</span>
+    <span onclick="refreshFrame()">🔄 Refresh</span>
+    <span onclick="printFrame()">🖨 Print</span>
+</div>
+
+<div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
+
 <div class="main">
+    <div class="status" id="status">Terakhir diperbarui: -</div>
+
     <div class="card">
         <iframe id="frame"></iframe>
     </div>
 </div>
 
+<div class="overlay" id="overlay">
+    <div class="loader"></div>
+</div>
+
 <script>
 let currentURL = "";
-let refreshInterval;
 
-// URL mapping
 const urls = {
     live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
     auto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false",
     nogid: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false"
 };
 
-// buka google drive
-function openDrive() {
-    window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs?usp=sharing", "_blank");
-}
-
-function loadFrame(el, type) {
-    const frame = document.getElementById("frame");
+function loadFrame(el,type){
     currentURL = urls[type];
-    frame.src = currentURL;
+    startLoading();
+    document.getElementById("frame").src = currentURL;
 
-    // reset auto refresh
-    clearInterval(refreshInterval);
-    refreshInterval = setInterval(refreshFrame, 5000);
-
-    // active menu
-    document.querySelectorAll(".menu span").forEach(item => item.classList.remove("active"));
-    el.classList.add("active");
+    if(el){
+        document.querySelectorAll(".menu span").forEach(e=>e.classList.remove("active"));
+        el.classList.add("active");
+    }
 }
 
-function refreshFrame() {
-    const frame = document.getElementById("frame");
-    frame.src = currentURL + "&t=" + new Date().getTime();
+function loadFrameMobile(type){
+    toggleMenu();
+    loadFrame(null,type);
 }
 
-// default load
-window.onload = () => {
-    const firstMenu = document.querySelectorAll(".menu span")[0];
-    loadFrame(firstMenu, "live");
+function refreshFrame(){
+    if(!currentURL) return;
+    startLoading();
+    document.getElementById("frame").src = currentURL + "&t=" + Date.now();
+}
+
+/* PRINT STABIL */
+function printFrame(){
+    if(!currentURL) return;
+
+    const win = window.open(currentURL, "_blank");
+
+    setTimeout(()=>{
+        win.print();
+    },1200);
+}
+
+function openDrive(){
+    window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs","_blank");
+}
+
+function toggleMenu(){
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("overlayMenu").classList.toggle("active");
+}
+
+function startLoading(){
+    document.getElementById("overlay").classList.add("active");
+    let bar = document.getElementById("progress");
+    bar.style.width="70%";
+}
+
+function stopLoading(){
+    let bar = document.getElementById("progress");
+    bar.style.width="100%";
+    setTimeout(()=>{
+        bar.style.width="0%";
+        document.getElementById("overlay").classList.remove("active");
+    },300);
+}
+
+function updateTime(){
+    document.getElementById("status").innerText =
+        "Terakhir diperbarui: " + new Date().toLocaleTimeString("id-ID");
+}
+
+document.getElementById("frame").onload=()=>{
+    stopLoading();
+    updateTime();
+};
+
+window.onload=()=>{
+    loadFrame(null,"live");
 };
 </script>
 
