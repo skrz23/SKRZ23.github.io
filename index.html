@@ -136,7 +136,7 @@ iframe {
 let currentURL = "";
 let intervalTime = 5000;
 let refreshInterval;
-let isRunning = true;
+let isRunning = false;
 
 const urls = {
     live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
@@ -175,18 +175,32 @@ function startRefresh() {
 function toggleRefresh() {
     isRunning = !isRunning;
 
-    document.getElementById("status").innerText = "Auto: " + (isRunning ? "ON" : "OFF");
-    document.getElementById("btnToggle").innerText = isRunning ? "⏸ Stop" : "▶ Start";
+    const status = document.getElementById("status");
+    const btn = document.getElementById("btnToggle");
+
+    if (isRunning) {
+        status.innerText = "Auto: ON";
+        btn.innerText = "⏸ Stop";
+        startRefresh(); // mulai interval
+    } else {
+        status.innerText = "Auto: OFF";
+        btn.innerText = "▶ Start";
+        clearInterval(refreshInterval); // stop interval;
 }
 
 function changeInterval(val) {
     intervalTime = val;
-    startRefresh();
+    
 }
 
 // default load
 window.onload = () => {
     loadFrame(document.querySelectorAll(".menu span")[0], "live");
+    const firstMenu = document.querySelectorAll(".menu span")[0];
+    loadFrame(firstMenu, "live");
+    // 🔥 default OFF
+    document.getElementById("status").innerText = "Auto: OFF";
+    document.getElementById("btnToggle").innerText = "▶ Start";
 };
 </script>
 
