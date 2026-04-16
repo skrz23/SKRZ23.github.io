@@ -6,192 +6,150 @@
 <title>Dashboard Premium</title>
 
 <style>
-:root {
-    --primary: #38bdf8;
-}
+:root { --primary:#38bdf8; }
 
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial;
-    background: linear-gradient(135deg, #020617, #0f172a);
-    color: white;
+body{
+    margin:0;
+    font-family:'Segoe UI',Arial;
+    background:linear-gradient(135deg,#020617,#0f172a);
+    color:white;
 }
 
 /* PROGRESS */
-.progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    width: 0%;
-    background: var(--primary);
-    z-index: 9999;
+.progress{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    width:0%;
+    background:var(--primary);
+    z-index:9999;
 }
 
 /* NAVBAR */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: rgba(2,6,23,0.7);
-    backdrop-filter: blur(10px);
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    background:rgba(2,6,23,0.7);
+    backdrop-filter:blur(10px);
 }
 
-.title {
-    color: var(--primary);
-    font-weight: bold;
-}
+.title{color:var(--primary);font-weight:bold;}
 
-.menu {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
+.menu{display:flex;gap:20px;align-items:center;}
+.menu span{cursor:pointer;color:#94a3b8;}
+.menu span:hover,.active{color:var(--primary);}
 
-.menu span {
-    cursor: pointer;
-    color: #94a3b8;
-}
-
-.menu span:hover,
-.active {
-    color: var(--primary);
-}
-
-/* BUTTON */
-.btn {
-    background: var(--primary);
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+.btn{
+    background:var(--primary);
+    border:none;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
 }
 
 /* MOBILE */
-.hamburger {
-    display: none;
-    font-size: 22px;
-    cursor: pointer;
-}
+.hamburger{display:none;font-size:22px;cursor:pointer;}
 
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -260px;
-    width: 260px;
-    height: 100%;
-    background: #020617;
-    padding: 20px;
-    transition: 0.3s;
-    z-index: 1000;
+/* ✅ SIDEBAR FIX */
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:260px;
+    height:100%;
+    background:#020617;
+    padding:20px;
+    transform:translateX(-100%);
+    transition:0.3s;
+    z-index:1000;
 }
+.sidebar.active{transform:translateX(0);}
+.sidebar span{display:block;padding:12px 0;cursor:pointer;}
 
-.sidebar.active {
-    left: 0;
+/* OVERLAY */
+.overlay-menu{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    z-index:999;
 }
-
-.sidebar span {
-    display: block;
-    padding: 12px 0;
-    cursor: pointer;
-}
-
-.overlay-menu {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-}
-
-.overlay-menu.active {
-    display: block;
-}
+.overlay-menu.active{display:block;}
 
 /* MAIN */
-.main {
-    padding: 10px;
-}
+.main{padding:15px;}
 
-.status {
-    font-size: 13px;
-    color: #94a3b8;
-    text-align: right;
-    margin-bottom: 8px;
+.status{
+    font-size:13px;
+    color:#94a3b8;
+    text-align:right;
+    margin-bottom:8px;
 }
 
 /* ZOOM */
-.zoom-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    color: #94a3b8;
-}
-
-.zoom-control input {
-    width: 150px;
+.zoom-control{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    color:#94a3b8;
 }
 
 /* CARD */
-.card {
-    background: rgba(2,6,23,0.7);
-    border-radius: 12px;
-    padding: 10px;
+.card{
+    background:rgba(2,6,23,0.7);
+    border-radius:12px;
+    padding:10px;
+    position:relative;
+    z-index:1;
 }
 
-/* FIX IFRAME */
-.iframe-wrapper {
-    width: 100%;
-    overflow: auto;
+/* ✅ IFRAME FIX TOTAL */
+.iframe-wrapper{
+    width:100%;
+    overflow:auto;
+    position:relative;
+    z-index:1;
 }
 
-.iframe-wrapper iframe {
-    width: 1200px;
-    height: calc(100vh - 220px);
-    border: 1PX;
-    transform-origin: top left;
+.iframe-wrapper iframe{
+    width:1200px;
+    height:calc(100vh - 220px);
+    border:none;
+    transform-origin:top left;
 }
 
 /* LOADING */
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(2,6,23,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.3s;
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,0.6);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    pointer-events:none;
+    transition:0.3s;
 }
+.overlay.active{opacity:1;pointer-events:all;}
 
-.overlay.active {
-    opacity: 1;
-    pointer-events: all;
+.loader{
+    width:40px;
+    height:40px;
+    border:4px solid var(--primary);
+    border-top:transparent;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
 }
-
-.loader {
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--primary);
-    border-top: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* MOBILE */
 @media(max-width:768px){
-    .menu { display:none; }
-    .hamburger { display:block; }
-
-    .iframe-wrapper iframe {
-        width: 1200px;
-    }
+    .menu{display:none;}
+    .hamburger{display:block;}
 }
 </style>
 </head>
@@ -215,7 +173,7 @@ body {
     </div>
 </div>
 
-<!-- MOBILE MENU -->
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <span onclick="loadFrameMobile('live')">GAJI 2026</span>
     <span onclick="loadFrameMobile('auto')">GAJI 2027</span>
@@ -228,13 +186,10 @@ body {
 <div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
 
 <div class="main">
-
     <div class="status" id="status">Terakhir diperbarui: -</div>
 
-    <!-- ZOOM -->
     <div class="zoom-control">
-        <span>🔍</span>
-        <input type="range" id="zoomSlider" min="50" max="120" value="100">
+        🔍 <input type="range" id="zoomSlider" min="50" max="120" value="100">
         <span id="zoomValue">100%</span>
     </div>
 
@@ -250,87 +205,82 @@ body {
 </div>
 
 <script>
-let currentURL = "";
+let currentURL="";
 
-const urls = {
-    live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
-    auto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false",
-    nogid: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false"
+const urls={
+ live:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
+ auto:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false",
+ nogid:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false"
 };
 
 function loadFrame(el,type){
-    currentURL = urls[type];
-    startLoading();
-    document.getElementById("frame").src = currentURL;
-
-    if(el){
-        document.querySelectorAll(".menu span").forEach(e=>e.classList.remove("active"));
-        el.classList.add("active");
-    }
+ currentURL=urls[type];
+ startLoading();
+ frame.src=currentURL;
+ if(el){
+  document.querySelectorAll(".menu span").forEach(e=>e.classList.remove("active"));
+  el.classList.add("active");
+ }
 }
 
 function loadFrameMobile(type){
-    toggleMenu();
-    loadFrame(null,type);
+ toggleMenu();
+ loadFrame(null,type);
 }
 
 function refreshFrame(){
-    if(!currentURL) return;
-    startLoading();
-    document.getElementById("frame").src = currentURL + "&t=" + Date.now();
+ if(!currentURL)return;
+ startLoading();
+ frame.src=currentURL+"&t="+Date.now();
 }
 
+/* PRINT STABIL */
 function printFrame(){
-    if(!currentURL) return;
-    const win = window.open(currentURL, "_blank");
-    setTimeout(()=>{ win.print(); },1200);
+ if(!currentURL)return;
+ const win=window.open(currentURL,"_blank");
+ setTimeout(()=>win.print(),1200);
 }
 
 function openDrive(){
-    window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs","_blank");
+ window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs","_blank");
 }
 
 function toggleMenu(){
-    document.getElementById("sidebar").classList.toggle("active");
-    document.getElementById("overlayMenu").classList.toggle("active");
+ sidebar.classList.toggle("active");
+ overlayMenu.classList.toggle("active");
 }
 
 function startLoading(){
-    document.getElementById("overlay").classList.add("active");
-    document.getElementById("progress").style.width="70%";
+ overlay.classList.add("active");
+ progress.style.width="70%";
 }
 
 function stopLoading(){
-    document.getElementById("progress").style.width="100%";
-    setTimeout(()=>{
-        document.getElementById("progress").style.width="0%";
-        document.getElementById("overlay").classList.remove("active");
-    },300);
+ progress.style.width="100%";
+ setTimeout(()=>{
+  progress.style.width="0%";
+  overlay.classList.remove("active");
+ },300);
 }
 
 function updateTime(){
-    document.getElementById("status").innerText =
-        "Terakhir diperbarui: " + new Date().toLocaleTimeString("id-ID");
+ status.innerText="Terakhir diperbarui: "+new Date().toLocaleTimeString("id-ID");
 }
 
 /* ZOOM */
-const slider = document.getElementById("zoomSlider");
-const zoomValue = document.getElementById("zoomValue");
-const frame = document.getElementById("frame");
+zoomSlider.oninput=function(){
+ const scale=this.value/100;
+ frame.style.transform="scale("+scale+")";
+ zoomValue.innerText=this.value+"%";
+};
 
-slider.addEventListener("input", function() {
-    const scale = this.value / 100;
-    frame.style.transform = "scale(" + scale + ")";
-    zoomValue.innerText = this.value + "%";
-});
-
-document.getElementById("frame").onload=()=>{
-    stopLoading();
-    updateTime();
+frame.onload=()=>{
+ stopLoading();
+ updateTime();
 };
 
 window.onload=()=>{
-    loadFrame(null,"live");
+ loadFrame(null,"live");
 };
 </script>
 
