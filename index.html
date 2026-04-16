@@ -109,19 +109,19 @@ iframe {
     <div class="title">📊 Dashboard Advanced</div>
 
     <div class="menu">
-        <span onclick="loadFrame(this,'live')">DESK GAJI 2026</span>
-        <span onclick="loadFrame(this,'auto')">DESK GAJI 2027</span>
-        <span onclick="loadFrame(this,'nogid')">DESK PARUH WAKTU</span>
+        <span onclick="loadFrame(this,'live')">Live Data</span>
+        <span onclick="loadFrame(this,'auto')">Auto Update</span>
+        <span onclick="loadFrame(this,'nogid')">No GID</span>
     </div>
 
     <div class="controls">
-        <button onclick="toggleRefresh()" id="btnToggle">▶ Start</button>
+        <button onclick="toggleRefresh()" id="btnToggle">⏸ Stop</button>
         <select onchange="changeInterval(this.value)">
             <option value="3000">3s</option>
             <option value="5000" selected>5s</option>
             <option value="10000">10s</option>
         </select>
-        <span class="status" id="status">Auto: OFF</span>
+        <span class="status" id="status">Auto: ON</span>
     </div>
 </div>
 
@@ -136,7 +136,7 @@ iframe {
 let currentURL = "";
 let intervalTime = 5000;
 let refreshInterval;
-let isRunning = false;
+let isRunning = true;
 
 const urls = {
     live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
@@ -150,6 +150,8 @@ function loadFrame(el, type) {
 
     document.querySelectorAll(".menu span").forEach(x => x.classList.remove("active"));
     el.classList.add("active");
+
+    startRefresh();
 }
 
 function refreshFrame() {
@@ -173,29 +175,18 @@ function startRefresh() {
 function toggleRefresh() {
     isRunning = !isRunning;
 
-    const status = document.getElementById("status");
-    const btn = document.getElementById("btnToggle");
-
-    if (isRunning) {
-        status.innerText = "Auto: ON";
-        btn.innerText = "⏸ Stop";
-        startRefresh();
-    } else {
-        status.innerText = "Auto: OFF";
-        btn.innerText = "▶ Start";
-        clearInterval(refreshInterval);
-    }
+    document.getElementById("status").innerText = "Auto: " + (isRunning ? "ON" : "OFF");
+    document.getElementById("btnToggle").innerText = isRunning ? "⏸ Stop" : "▶ Start";
 }
 
 function changeInterval(val) {
     intervalTime = val;
-    if (isRunning) startRefresh();
+    startRefresh();
 }
 
 // default load
 window.onload = () => {
-    const firstMenu = document.querySelectorAll(".menu span")[0];
-    loadFrame(firstMenu, "live");
+    loadFrame(document.querySelectorAll(".menu span")[0], "live");
 };
 </script>
 
