@@ -10,7 +10,6 @@
     --primary: #38bdf8;
 }
 
-/* BASE */
 body {
     margin: 0;
     font-family: 'Segoe UI', Arial;
@@ -18,7 +17,7 @@ body {
     color: white;
 }
 
-/* PROGRESS BAR */
+/* PROGRESS */
 .progress {
     position: fixed;
     top: 0;
@@ -44,7 +43,6 @@ body {
     font-weight: bold;
 }
 
-/* MENU */
 .menu {
     display: flex;
     gap: 20px;
@@ -126,15 +124,24 @@ body {
 .card {
     background: rgba(2,6,23,0.7);
     border-radius: 12px;
-    padding: 8px;
+    padding: 10px;
 }
 
-/* IFRAME */
-iframe {
+/* ✅ FIX IFRAME */
+.iframe-wrapper {
     width: 100%;
-    height: calc(100vh - 150px);
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.iframe-wrapper iframe {
+    width: 100%;
+    min-width: 900px;
+    height: calc(100vh - 180px);
     border: none;
     border-radius: 10px;
+    transform-origin: top center;
 }
 
 /* LOADING */
@@ -168,10 +175,14 @@ iframe {
     to { transform: rotate(360deg); }
 }
 
-/* RESPONSIVE */
+/* MOBILE */
 @media(max-width:768px){
     .menu { display:none; }
     .hamburger { display:block; }
+
+    .iframe-wrapper iframe {
+        transform: scale(0.85);
+    }
 }
 </style>
 </head>
@@ -211,7 +222,9 @@ iframe {
     <div class="status" id="status">Terakhir diperbarui: -</div>
 
     <div class="card">
-        <iframe id="frame"></iframe>
+        <div class="iframe-wrapper">
+            <iframe id="frame"></iframe>
+        </div>
     </div>
 </div>
 
@@ -250,15 +263,11 @@ function refreshFrame(){
     document.getElementById("frame").src = currentURL + "&t=" + Date.now();
 }
 
-/* PRINT STABIL */
 function printFrame(){
     if(!currentURL) return;
 
     const win = window.open(currentURL, "_blank");
-
-    setTimeout(()=>{
-        win.print();
-    },1200);
+    setTimeout(()=>{ win.print(); },1200);
 }
 
 function openDrive(){
@@ -272,15 +281,13 @@ function toggleMenu(){
 
 function startLoading(){
     document.getElementById("overlay").classList.add("active");
-    let bar = document.getElementById("progress");
-    bar.style.width="70%";
+    document.getElementById("progress").style.width="70%";
 }
 
 function stopLoading(){
-    let bar = document.getElementById("progress");
-    bar.style.width="100%";
+    document.getElementById("progress").style.width="100%";
     setTimeout(()=>{
-        bar.style.width="0%";
+        document.getElementById("progress").style.width="0%";
         document.getElementById("overlay").classList.remove("active");
     },300);
 }
