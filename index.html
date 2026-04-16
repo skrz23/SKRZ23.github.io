@@ -13,7 +13,7 @@ body {
     color: white;
 }
 
-/* HEADER / NAVBAR */
+/* NAVBAR */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -21,6 +21,8 @@ body {
     background: #020617;
     padding: 15px 25px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    position: sticky;
+    top: 0;
 }
 
 .navbar .title {
@@ -37,6 +39,18 @@ body {
 .navbar .menu span {
     font-size: 14px;
     color: #94a3b8;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.navbar .menu span:hover {
+    color: #38bdf8;
+}
+
+/* ACTIVE MENU */
+.active {
+    color: #38bdf8 !important;
+    font-weight: bold;
 }
 
 /* MAIN */
@@ -44,60 +58,65 @@ body {
     padding: 20px;
 }
 
-/* HEADER TEXT */
-.header h1 {
-    margin: 0;
-}
-
-/* CARD */
 .card {
     margin-top: 15px;
     background: #020617;
     padding: 10px;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
 /* IFRAME */
 iframe {
     width: 100%;
-    height: 85vh;
+    height: calc(100vh - 140px);
     border: none;
     border-radius: 10px;
-    height: calc(100vh - 140px);
 }
 </style>
-<div class="navbar">
-    <div class="title">📊 Dashboard</div>
-    <div class="menu">
-        <span>✔ Live Data</span>
-        <span>✔ Auto Update</span>
-        <span>✔ No GID Needed</span>
-    </div>
-</div>
-
 </head>
 
 <body>
 
-<!-- 🔥 HEADER BAR -->
-
-<!-- MAIN CONTENT -->
-<div class="main">
-
-    <div class="header">
-        <h1>Dashboard Data</h1>
-        <p>Realtime dari Google Sheets</p>
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="title">📊 Dashboard</div>
+    <div class="menu">
+        <span onclick="loadFrame(this, 'live')">✔ Live Data</span>
+        <span onclick="loadFrame(this, 'auto')">✔ Auto Update</span>
+        <span onclick="loadFrame(this, 'nogid')">✔ No GID Needed</span>
     </div>
-
-    <div class="card">
-
-        <!-- 🔥 IFRAME -->
-        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false"></iframe>
-
-    </div>
-
 </div>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="card">
+        <iframe id="frame"
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false">
+        </iframe>
+    </div>
+</div>
+
+<script>
+function loadFrame(el, type) {
+    const frame = document.getElementById("frame");
+
+    // Ganti URL sesuai menu
+    if (type === "live") {
+        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false";
+    } else if (type === "auto") {
+        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false";
+    } else if (type === "nogid") {
+        frame.src = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false";
+    }
+
+    // Highlight menu aktif
+    document.querySelectorAll(".menu span").forEach(item => item.classList.remove("active"));
+    el.classList.add("active");
+}
+
+// Set default aktif
+document.querySelectorAll(".menu span")[0].classList.add("active");
+</script>
 
 </body>
 </html>
