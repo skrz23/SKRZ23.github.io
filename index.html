@@ -35,46 +35,67 @@ body{
 .menu span:hover,.active{color:var(--primary);}
 
 .btn{
-    background:var(--primary);border:none;
-    padding:6px 10px;border-radius:6px;cursor:pointer;
+    background:var(--primary);
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
 }
 
 /* MOBILE */
 .hamburger{display:none;font-size:22px;cursor:pointer;}
 
 .sidebar{
-    position:fixed;top:0;left:0;width:260px;height:100%;
-    background:#020617;padding:20px;
+    position:fixed;
+    top:0;left:0;
+    width:260px;height:100%;
+    background:#020617;
+    padding:20px;
     transform:translateX(-100%);
-    transition:0.3s;z-index:1000;
+    transition:0.3s;
+    z-index:1000;
 }
 .sidebar.active{transform:translateX(0);}
 .sidebar span{display:block;padding:12px 0;cursor:pointer;}
 
 .overlay-menu{
-    position:fixed;inset:0;background:rgba(0,0,0,0.5);
-    display:none;z-index:999;
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    z-index:999;
 }
 .overlay-menu.active{display:block;}
 
 /* MAIN */
 .main{padding:15px;}
-.status{font-size:13px;color:#94a3b8;text-align:right;margin-bottom:8px;}
+
+.status{
+    font-size:13px;
+    color:#94a3b8;
+    text-align:right;
+    margin-bottom:8px;
+}
 
 /* ZOOM */
 .zoom-control{
-    display:flex;align-items:center;gap:10px;margin-bottom:10px;color:#94a3b8;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    color:#94a3b8;
 }
 
 /* CARD */
 .card{
     background:rgba(2,6,23,0.7);
-    border-radius:12px;padding:10px;
+    border-radius:12px;
+    padding:10px;
 }
 
 /* IFRAME */
 .iframe-wrapper{
-    width:100%;overflow:auto;
+    width:100%;
+    overflow:auto;
 }
 
 .iframe-wrapper iframe{
@@ -86,15 +107,26 @@ body{
 
 /* LOADING */
 .overlay{
-    position:fixed;inset:0;background:rgba(2,6,23,0.6);
-    display:flex;justify-content:center;align-items:center;
-    opacity:0;pointer-events:none;transition:0.3s;
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,0.6);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    pointer-events:none;
+    transition:0.3s;
 }
-.overlay.active{opacity:1;pointer-events:all;}
+.overlay.active{
+    opacity:1;
+    pointer-events:all;
+}
 
 .loader{
-    width:40px;height:40px;border:4px solid var(--primary);
-    border-top:transparent;border-radius:50%;
+    width:40px;height:40px;
+    border:4px solid var(--primary);
+    border-top:transparent;
+    border-radius:50%;
     animation:spin 1s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -150,7 +182,8 @@ body.fullscreen iframe{height:100vh !important;}
     <div class="status" id="status">Terakhir diperbarui: -</div>
 
     <div class="zoom-control">
-        🔍 <input type="range" id="zoomSlider" min="50" max="120" value="100">
+        🔍 
+        <input type="range" id="zoomSlider" min="50" max="120" value="100">
         <span id="zoomValue">100%</span>
     </div>
 
@@ -167,6 +200,15 @@ body.fullscreen iframe{height:100vh !important;}
 
 <script>
 let currentURL="";
+
+const frame = document.getElementById("frame");
+const progress = document.getElementById("progress");
+const overlay = document.getElementById("overlay");
+const statusEl = document.getElementById("status");
+const zoomSlider = document.getElementById("zoomSlider");
+const zoomValue = document.getElementById("zoomValue");
+const sidebar = document.getElementById("sidebar");
+const overlayMenu = document.getElementById("overlayMenu");
 
 const urls={
  live:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
@@ -228,8 +270,12 @@ function stopLoading(){
  },300);
 }
 
+/* ✅ FIX WAKTU */
 function updateTime(){
- status.innerText="Terakhir diperbarui: "+new Date().toLocaleTimeString("id-ID");
+ const now = new Date();
+ statusEl.innerText = "Terakhir diperbarui: " + 
+     now.toLocaleDateString("id-ID") + " " +
+     now.toLocaleTimeString("id-ID");
 }
 
 /* ZOOM MANUAL */
