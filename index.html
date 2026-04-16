@@ -93,6 +93,9 @@ iframe {
         <span onclick="loadFrame(this, 'auto')">✔ DESK GAJI 2027</span> 
         <span onclick="loadFrame(this, 'nogid')">✔ DESK PARUH WAKTU</span> 
         
+        <!-- MENU BARU -->
+        <span onclick="openDrive()">📁 SELENGKAPNYA</span>
+
         <!-- Tombol Refresh -->
         <button class="refresh-btn" onclick="refreshFrame()">🔄 Refresh</button>
     </div>
@@ -115,6 +118,11 @@ const urls = {
     nogid: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzheNoPSUBL51N_QRLTiaZLyPkWK6-sfhTVVTVjwu9_r5idwjBLxaukKhcOXVWhHpLzEn6_AzEijnO/pubhtml?widget=true&headers=false"
 };
 
+// buka google drive
+function openDrive() {
+    window.open("https://drive.google.com/drive/folders/1GfuS0oksQCSDwwXWN999Sp2YHRfOANOs?usp=sharing", "_blank");
+}
+
 function loadFrame(el, type) {
     const frame = document.getElementById("frame");
     currentURL = urls[type];
@@ -131,8 +139,6 @@ function loadFrame(el, type) {
 
 function refreshFrame() {
     const frame = document.getElementById("frame");
-
-    // reload tanpa cache
     frame.src = currentURL + "&t=" + new Date().getTime();
 }
 
