@@ -120,6 +120,19 @@ body {
     margin-bottom: 8px;
 }
 
+/* ZOOM */
+.zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #94a3b8;
+}
+
+.zoom-control input {
+    width: 150px;
+}
+
 /* CARD */
 .card {
     background: rgba(2,6,23,0.7);
@@ -127,21 +140,17 @@ body {
     padding: 10px;
 }
 
-/* ✅ FIX IFRAME */
+/* FIX IFRAME */
 .iframe-wrapper {
     width: 100%;
     overflow: auto;
-    display: flex;
-    justify-content: center;
 }
 
 .iframe-wrapper iframe {
-    width: 100%;
-    min-width: 900px;
-    height: calc(100vh - 180px);
+    width: 1200px;
+    height: calc(100vh - 220px);
     border: none;
-    border-radius: 10px;
-    transform-origin: top center;
+    transform-origin: top left;
 }
 
 /* LOADING */
@@ -181,7 +190,7 @@ body {
     .hamburger { display:block; }
 
     .iframe-wrapper iframe {
-        transform: scale(0.85);
+        width: 1200px;
     }
 }
 </style>
@@ -219,7 +228,15 @@ body {
 <div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
 
 <div class="main">
+
     <div class="status" id="status">Terakhir diperbarui: -</div>
+
+    <!-- ZOOM -->
+    <div class="zoom-control">
+        <span>🔍</span>
+        <input type="range" id="zoomSlider" min="50" max="120" value="100">
+        <span id="zoomValue">100%</span>
+    </div>
 
     <div class="card">
         <div class="iframe-wrapper">
@@ -265,7 +282,6 @@ function refreshFrame(){
 
 function printFrame(){
     if(!currentURL) return;
-
     const win = window.open(currentURL, "_blank");
     setTimeout(()=>{ win.print(); },1200);
 }
@@ -296,6 +312,17 @@ function updateTime(){
     document.getElementById("status").innerText =
         "Terakhir diperbarui: " + new Date().toLocaleTimeString("id-ID");
 }
+
+/* ZOOM */
+const slider = document.getElementById("zoomSlider");
+const zoomValue = document.getElementById("zoomValue");
+const frame = document.getElementById("frame");
+
+slider.addEventListener("input", function() {
+    const scale = this.value / 100;
+    frame.style.transform = "scale(" + scale + ")";
+    zoomValue.innerText = this.value + "%";
+});
 
 document.getElementById("frame").onload=()=>{
     stopLoading();
