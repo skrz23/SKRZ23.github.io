@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Advanced</title>
+<title>Dashboard Google Sheets</title>
 
 <style>
 body {
@@ -24,13 +24,18 @@ body {
     top: 0;
 }
 
-.title {
+.navbar .title {
     color: #38bdf8;
+    font-size: 20px;
     font-weight: bold;
 }
 
+.menu {
+    display: flex;
+    gap: 20px;
+}
+
 .menu span {
-    margin: 0 10px;
     cursor: pointer;
     color: #94a3b8;
 }
@@ -41,64 +46,24 @@ body {
     font-weight: bold;
 }
 
-/* CONTROL PANEL */
-.controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-button, select {
-    background: #1e293b;
-    border: none;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
 /* MAIN */
 .main {
     padding: 20px;
 }
 
 .card {
+    margin-top: 15px;
     background: #020617;
     padding: 10px;
     border-radius: 12px;
-    position: relative;
 }
 
 /* IFRAME */
 iframe {
     width: 100%;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 140px);
     border: none;
     border-radius: 10px;
-}
-
-/* LOADING SPINNER */
-.loader {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 6px solid #1e293b;
-    border-top: 6px solid #38bdf8;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    display: none;
-}
-
-@keyframes spin {
-    100% { transform: rotate(360deg); }
-}
-
-.status {
-    font-size: 12px;
-    color: #94a3b8;
 }
 </style>
 </head>
@@ -106,38 +71,25 @@ iframe {
 <body>
 
 <div class="navbar">
-    <div class="title">📊 Dashboard Advanced</div>
-
+    <div class="title">📊 Dashboard</div>
     <div class="menu">
-        <span onclick="loadFrame(this,'live')">Live Data</span>
-        <span onclick="loadFrame(this,'auto')">Auto Update</span>
-        <span onclick="loadFrame(this,'nogid')">No GID</span>
-    </div>
-
-    <div class="controls">
-        <button onclick="toggleRefresh()" id="btnToggle">⏸ Stop</button>
-        <select onchange="changeInterval(this.value)">
-            <option value="3000">3s</option>
-            <option value="5000" selected>5s</option>
-            <option value="10000">10s</option>
-        </select>
-        <span class="status" id="status">Auto: ON</span>
+        <span onclick="loadFrame(this, 'live')">✔ Live Data</span>
+        <span onclick="loadFrame(this, 'auto')">✔ Auto Update</span>
+        <span onclick="loadFrame(this, 'nogid')">✔ No GID Needed</span>
     </div>
 </div>
 
 <div class="main">
     <div class="card">
-        <div class="loader" id="loader"></div>
         <iframe id="frame"></iframe>
     </div>
 </div>
 
 <script>
 let currentURL = "";
-let intervalTime = 5000;
 let refreshInterval;
-let isRunning = true;
 
+// URL mapping
 const urls = {
     live: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZsBA_TeLq6n4PrNuJCXu6wcb9pLrFgOlt5-XYeE36laNYDyAsIYZsegCpimpYqPyZgdsFnVufCPLx/pubhtml?widget=true&headers=false",
     auto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxf_X6dfVDKPbeUU1BJUHEEgUrlDco1gg1PbeW3zVvzIaWXOKPdVl9Yb5xWNMtcST72ZK-XVeF-bkv/pubhtml?widget=true&headers=false",
@@ -145,48 +97,30 @@ const urls = {
 };
 
 function loadFrame(el, type) {
+    const frame = document.getElementById("frame");
     currentURL = urls[type];
-    document.getElementById("frame").src = currentURL;
+    frame.src = currentURL;
 
-    document.querySelectorAll(".menu span").forEach(x => x.classList.remove("active"));
+    // reset auto refresh
+    clearInterval(refreshInterval);
+    refreshInterval = setInterval(refreshFrame, 5000);
+
+    // active menu
+    document.querySelectorAll(".menu span").forEach(item => item.classList.remove("active"));
     el.classList.add("active");
-
-    startRefresh();
 }
 
 function refreshFrame() {
-    if (!isRunning) return;
-
     const frame = document.getElementById("frame");
-    const loader = document.getElementById("loader");
 
-    loader.style.display = "block";
-
+    // trick biar reload tanpa cache
     frame.src = currentURL + "&t=" + new Date().getTime();
-
-    setTimeout(() => loader.style.display = "none", 800);
-}
-
-function startRefresh() {
-    clearInterval(refreshInterval);
-    refreshInterval = setInterval(refreshFrame, intervalTime);
-}
-
-function toggleRefresh() {
-    isRunning = !isRunning;
-
-    document.getElementById("status").innerText = "Auto: " + (isRunning ? "ON" : "OFF");
-    document.getElementById("btnToggle").innerText = isRunning ? "⏸ Stop" : "▶ Start";
-}
-
-function changeInterval(val) {
-    intervalTime = val;
-    startRefresh();
 }
 
 // default load
 window.onload = () => {
-    loadFrame(document.querySelectorAll(".menu span")[0], "live");
+    const firstMenu = document.querySelectorAll(".menu span")[0];
+    loadFrame(firstMenu, "live");
 };
 </script>
 
